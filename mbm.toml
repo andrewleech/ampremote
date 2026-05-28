@@ -46,3 +46,9 @@ title = "tools/mpremote: poll for friendly REPL prompt before entering raw mode"
 name = "ampremote_rename"
 pr_url = "https://github.com/andrewleech/micropython/tree/ampremote_rename"
 title = "tools/mpremote: rename package and CLI to ampremote, add ampr alias"
+
+[[submodules.branches]]
+name = "mpr/fix_socket_rfc2217"
+pr_url = "https://github.com/micropython/micropython/pull/19062"
+pr_number = 19062
+title = "Improve mpremote socket and rfc2217 connections"
