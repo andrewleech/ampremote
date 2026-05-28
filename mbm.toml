@@ -1,0 +1,48 @@
+# micropython-branch-manager (mbm)
+# Install: pip install micropython-branch-manager
+#          or: uv tool install micropython-branch-manager
+# Usage:   mbm --help
+
+[[submodules]]
+path = "micropython"
+integration_branch = "ampremote"
+
+[[submodules.branches]]
+name = "mpremote_reconnect"
+pr_url = "https://github.com/micropython/micropython/pull/17322"
+pr_number = 17322
+title = "tools/mpremote: Add automatic reconnection feature"
+
+[[submodules.branches]]
+name = "mpremote-resume-by-default"
+pr_url = "https://github.com/micropython/micropython/pull/17485"
+pr_number = 17485
+title = "tools/mpremote: Make resume behavior the default, remove resume command"
+
+[[submodules.branches]]
+name = "mpremote_pty"
+pr_url = "https://github.com/micropython/micropython/pull/18327"
+pr_number = 18327
+title = "mpremote: Add automatic PTY device detection for QEMU"
+
+[[submodules.branches]]
+name = "mpremote_file_cp_hash"
+pr_url = "https://github.com/micropython/micropython/pull/18436"
+pr_number = 18436
+title = "tools/mpremote: Add streaming hash verification to file transfers"
+
+[[submodules.branches]]
+name = "feature/smart-encoding-fs-writefile"
+pr_url = "https://github.com/micropython/micropython/pull/18785"
+pr_number = 18785
+title = "mpremote: Speed up file transfers with automatic encoding"
+
+[[submodules.branches]]
+name = "mpremote_raw_repl_retry"
+pr_url = "https://github.com/andrewleech/micropython/tree/mpremote_raw_repl_retry"
+title = "tools/mpremote: poll for friendly REPL prompt before entering raw mode"
+
+[[submodules.branches]]
+name = "ampremote_rename"
+pr_url = "https://github.com/andrewleech/micropython/tree/ampremote_rename"
+title = "tools/mpremote: rename package and CLI to ampremote, add ampr alias"
