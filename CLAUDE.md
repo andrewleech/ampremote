@@ -92,8 +92,36 @@ validated and ready for upstream review.
 ## Rebuilding the integration on new upstream
 
 ```bash
-mbm rebase
+mbm rebase --local
 ```
+
+**Always `--local`.** Without it mbm's push routing targets `upstream`, not
+the fork.
+
+**Never finish a stopped rebase with `git rebase --continue`.** Resolve the
+conflict, `git add` it, then hand back to `mbm rebase --resume --local`, which
+continues the rebase itself. `--resume` only continues a rebase it can still
+see: with no `rebase-merge` directory it restarts at the branch *after* the
+index in `mbm-rebase-state.json`, so finishing by hand silently drops that
+branch's merge from the integration. Measured 2026-08-25 - three of seven
+branches went missing that way, and the rebuild still reported success.
+
+Check the result by content, not by the merge list: assert a marker for every
+registered branch (`verify_hash`, `DeflateIO`, the rename in `pyproject.toml`)
+before force-moving `ampremote`.
+
+Tag every branch tip before rebuilding, so restoring afterwards is a diff
+rather than a reconstruction:
+
+```bash
+git -C micropython for-each-ref --format='%(refname:short)' refs/heads/ \
+  | while read b; do git -C micropython tag -f "snap/$b" "$b"; done
+```
+
+A PR that has merged upstream must be deregistered: composing it replays
+commits the base already has. A *partly* merged PR is worse, because
+`git cherry` under-reports it - upstream reworks commits in review, so their
+patch-ids no longer match. Compare subjects against upstream's log as well.
 
 This rebuilds `ampremote` from upstream master plus the branches in
 `mbm.toml`, in order. rerere replays prior conflict resolutions. After
