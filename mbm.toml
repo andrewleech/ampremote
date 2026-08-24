@@ -19,11 +19,9 @@ pr_url = "https://github.com/micropython/micropython/pull/17485"
 pr_number = 17485
 title = "tools/mpremote: Make resume behavior the default, remove resume command"
 
-[[submodules.branches]]
-name = "mpremote_pty"
-pr_url = "https://github.com/micropython/micropython/pull/18327"
-pr_number = 18327
-title = "mpremote: Add automatic PTY device detection for QEMU"
+# PR #18327 (PTY detection) MERGED upstream 2026-07-14 as e1f8f204b6, so it is
+# no longer registered: composing a merged PR replays commits the base already
+# has. `_is_pty_device` comes from upstream master now.
 
 [[submodules.branches]]
 name = "mpremote_file_cp_hash"
@@ -43,6 +41,12 @@ pr_url = "https://github.com/andrewleech/micropython/tree/mpremote_raw_repl_retr
 title = "tools/mpremote: poll for friendly REPL prompt before entering raw mode"
 
 [[submodules.branches]]
+name = "mpr/fix_socket_rfc2217"
+pr_url = "https://github.com/micropython/micropython/pull/19062"
+pr_number = 19062
+title = "Improve mpremote socket and rfc2217 connections"
+
+[[submodules.branches]]
 name = "mpremote_debugpy_install"
 pr_url = "https://github.com/andrewleech/micropython/tree/mpremote_debugpy_install"
 title = "tools/mpremote: Add cached, cross-compiled debugpy package installer"
@@ -56,9 +60,3 @@ title = "tools/mpremote: Add the debug command (targets, handshake, unix flow, -
 name = "ampremote_rename"
 pr_url = "https://github.com/andrewleech/micropython/tree/ampremote_rename"
 title = "tools/mpremote: rename package and CLI to ampremote, add ampr alias"
-
-[[submodules.branches]]
-name = "mpr/fix_socket_rfc2217"
-pr_url = "https://github.com/micropython/micropython/pull/19062"
-pr_number = 19062
-title = "Improve mpremote socket and rfc2217 connections"
