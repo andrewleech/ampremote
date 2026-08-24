@@ -98,17 +98,53 @@ mbm rebase --local
 **Always `--local`.** Without it mbm's push routing targets `upstream`, not
 the fork.
 
-**Never finish a stopped rebase with `git rebase --continue`.** Resolve the
-conflict, `git add` it, then hand back to `mbm rebase --resume --local`, which
-continues the rebase itself. `--resume` only continues a rebase it can still
-see: with no `rebase-merge` directory it restarts at the branch *after* the
-index in `mbm-rebase-state.json`, so finishing by hand silently drops that
-branch's merge from the integration. Measured 2026-08-25 - three of seven
-branches went missing that way, and the rebuild still reported success.
+**Rebuild from `origin/main`, not from wherever local `main` happens to be.**
+Composing against a stale `mbm.toml` drops every branch registered since, and
+the content check below cannot catch it: that check asserts the branches
+`mbm.toml` lists, so a branch missing from `mbm.toml` has no marker to miss.
+Measured 2026-08-25 - a rebuild branched one commit behind `origin/main` lost
+`mpremote_debug` and `mpremote_debugpy_install`, and reported success. Fetch
+and compare against `origin/main` before starting.
+
+**Compose in a separate worktree of the submodule.** `micropython/` is the
+tree the editable install imports from, so a conflicted or half-composed
+checkout is an immediate outage for every `ampremote` consumer on the host,
+not a local WIP state. Build on a scratch integration branch, verify, and
+switch the live checkout once at the end:
+
+```bash
+git -C micropython worktree add ../ampremote-rebuild/micropython \
+    -b ampremote_rebuild upstream/master
+```
+
+Point `integration_branch` in the worktree's `mbm.toml` at that scratch branch
+so mbm never force-moves the branch the live tree has checked out.
+
+**A stopped rebuild has two shapes, recovered differently.** Test for
+`MERGE_HEAD` first: mbm rebases a PR branch onto the base and *then* merges
+it, and the `rebase-merge` directory can survive from the rebase step into the
+merge step, so a stopped merge otherwise looks like a stopped rebase.
+
+- `MERGE_HEAD` present: resolve, `git add`, then **commit the merge**
+  (`git commit --no-edit -s` - mbm pre-populates `MERGE_MSG`, so the PR
+  metadata trailers survive), and only then `mbm rebase --resume --local`.
+- `rebase-merge/` present and no `MERGE_HEAD`: resolve, `git add`, then
+  `mbm rebase --resume --local`, which continues the rebase itself. Do not run
+  `git rebase --continue`.
+
+`--resume` restarts at the branch *after* the index in
+`mbm-rebase-state.json`, and it never commits a merge left staged in the
+worktree. Handing back a resolved-but-uncommitted merge therefore drops that
+branch, and the rebuild still reports success. Committing it first is what
+makes the index+1 restart correct. Measured 2026-08-25 - three of seven
+branches went missing this way in one rebuild, and `mpremote_debug` twice in
+another.
 
 Check the result by content, not by the merge list: assert a marker for every
-registered branch (`verify_hash`, `DeflateIO`, the rename in `pyproject.toml`)
-before force-moving `ampremote`.
+registered branch (`verify_hash`, `DeflateIO`, `mpdebug_handshake.py`, the
+rename in `pyproject.toml`) before force-moving `ampremote`. Check the
+`<integration>_update` branch: mbm composes into that and leaves the
+integration branch where it was.
 
 Tag every branch tip before rebuilding, so restoring afterwards is a diff
 rather than a reconstruction:
