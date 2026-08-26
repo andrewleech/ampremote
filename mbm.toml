@@ -57,6 +57,11 @@ pr_url = "https://github.com/andrewleech/micropython/tree/mpremote_debug"
 title = "tools/mpremote: Add the debug command (targets, handshake, unix flow, --dap-log)"
 
 [[submodules.branches]]
+name = "mpremote_sigterm_raw_exit"
+pr_url = "https://github.com/andrewleech/micropython/tree/mpremote_sigterm_raw_exit"
+title = "tools/mpremote: Leave raw REPL when terminated by a signal"
+
+[[submodules.branches]]
 name = "ampremote_rename"
 pr_url = "https://github.com/andrewleech/micropython/tree/ampremote_rename"
 title = "tools/mpremote: rename package and CLI to ampremote, add ampr alias"
