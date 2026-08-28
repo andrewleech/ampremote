@@ -164,6 +164,55 @@ This rebuilds `ampremote` from upstream master plus the branches in
 the rebuild, push the new `ampremote` SHA to the fork and commit the
 submodule pointer in the top-level repo.
 
+## Pinning a consumer at an integration commit
+
+Downstream consumers pin a SHA rather than a branch, so the commit has to stay
+both reachable and installable. Those are separate properties and only the
+first is obvious.
+
+Pin the submodule repo directly, not the wrapper:
+
+```
+ampremote @ git+https://github.com/andrewleech/micropython@<sha>#subdirectory=tools/mpremote
+```
+
+One repo, one SHA, no submodule init. The wrapper form
+(`.../ampremote@<sha>#subdirectory=micropython/tools/mpremote`) also works, but
+only because `.gitmodules` points the submodule at `micropython/micropython`
+and GitHub fork networks share objects, so it resolves a fork-only commit
+through the upstream URL. Do not repoint `.gitmodules` at the fork to "fix"
+that: it would bring the fork's tags into the submodule clone, which is what
+breaks the build (below).
+
+Tag the commit so a later force-move cannot orphan it, `ampremote-pin-<sha12>`
+by convention. That is safe now, but was not before
+`mpremote_version_tag_match`: the version comes from `git describe`, which
+reports whichever tag is nearest whatever its shape, so a non-version tag on
+the pinned commit was handed to `tag-pattern` and failed the build. A SHA pin
+lands the consumer on exactly that commit, so the tag protecting the pin was
+also what broke it. Keep that branch registered.
+
+Verify by installing, not by building:
+
+```bash
+uv venv /tmp/pincheck
+VIRTUAL_ENV=/tmp/pincheck uv pip install "ampremote @ git+https://github.com/andrewleech/micropython@<sha>#subdirectory=tools/mpremote"
+```
+
+Fetchable, buildable and installable are three different properties, and a
+`git fetch` or a `uv build` succeeding says nothing about the one a consumer
+actually needs. Clear uv's cache between attempts (`uv cache clean ampremote`
+and `rm -rf ~/.cache/uv/git-v0`); it keys built wheels on the source SHA, so a
+rebuilt package silently reports the previous run's result.
+
+The version is derived from the nearest version tag, so it depends on which
+tags the *source* remote carries, not just on the commit. The fork lacked
+upstream's `v1.29.0` for a while, so the same SHA installed as
+`1.29.0rc0.post793` from the fork and `1.29.0.post61` from a local clone that
+had it. Push upstream release tags to the fork to keep those agreeing, and
+push only authentic ones: a fabricated `vX.Y.Z` would be fetched into clones
+that also track upstream and would skew `git describe` for unrelated work.
+
 ## Testing
 
 Hardware in the loop is required for anything touching serial transport
