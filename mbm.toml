@@ -62,6 +62,11 @@ pr_url = "https://github.com/andrewleech/micropython/tree/mpremote_sigterm_raw_e
 title = "tools/mpremote: Leave raw REPL when terminated by a signal"
 
 [[submodules.branches]]
+name = "mpremote_version_tag_match"
+pr_url = "https://github.com/andrewleech/micropython/tree/mpremote_version_tag_match"
+title = "tools/mpremote: Ignore non-version tags when deriving the version"
+
+[[submodules.branches]]
 name = "ampremote_rename"
 pr_url = "https://github.com/andrewleech/micropython/tree/ampremote_rename"
 title = "tools/mpremote: rename package and CLI to ampremote, add ampr alias"
